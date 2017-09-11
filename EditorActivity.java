@@ -76,8 +76,8 @@ public class EditorActivity extends AppCompatActivity implements
     private boolean mInventoryHasChanged = false;
     private Button mDecrementButton;
     private EditText mItemInfoEditText;
-  //  private TextView decrementStockImage2;
-   // private TextView mTextView;
+    //  private TextView decrementStockImage2;
+    // private TextView mTextView;
 
 
     /**
@@ -495,32 +495,27 @@ public class EditorActivity extends AppCompatActivity implements
             //img data from db called up as a string. Converted to a URI format, then img file loaded up via that URI
             mImageView2.setImageBitmap(getBitmapFromUri(Uri.parse(itemImage)));
 
-            //   Log.v(LOG_TAG, "DOES 'STOCK' INT VAR ACTUALLY HAVE ANY VALUE WHEN I PRESS BUTTON?  "+ Integer.toString(stock));
-            String stock2 = String.valueOf(stock);
-            mItemStockText.setText(stock2);
-
-            //    Log.v(LOG_TAG, "DOES 'STOCK' INT VAR ACTUALLY HAVE ANY VALUE WHEN I PRESS BUTTON BUT AFTER TXT VIEW IS SET?  "+ Integer.toString(stock));
+            mItemStockText.setText((String.valueOf(stock)));
 
 
             incrementStockImage.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                   // if (stock >= 0) {
-                        //  Log.v(LOG_TAG, "DOES 'STOCK' INT VAR ACTUALLY HAVE ANY VALUE INSIDE ON INCREMENT?  "+  stock );
-                          newQuantity = stock++;
-                        //  Log.v(LOG_TAG, "DOES 'NEW QUANTITY' INT VAR ACTUALLY HAVE ANY VALUE INSIDE ON INCREMENT?  "+  stock );
-                        ContentValues values = new ContentValues();
-                        values.put(InventoryContract.InventoryEntry.COLUMN_ITEMS_IN_STOCK, newQuantity);
-                        //    Log.v(LOG_TAG, "WHAT DOES 'ITEM ID'   VAR ACTUALLY SAY?  "+  itemId );
-                        Uri recordUri = ContentUris.withAppendedId(InventoryContract.InventoryEntry.CONTENT_URI, itemId);
-                        int numRowsUpdated = getContentResolver().update(recordUri, values, null, null);
-                        String thisQuantity = (String.valueOf(newQuantity));
-                        mItemStockText.setText(thisQuantity);
-                        newQuantity = 0;
-                        if (!(numRowsUpdated > 0)) {
-                            Log.e(LOG_TAG, EditorActivity.this.getString(R.string.editor_insert_stock_update_failed));
-                        }
-                   // }
+                    mItemStockText.setText((String.valueOf(stock)));
+                    incrementStockCounter++ ;
+                    int totalStock= incrementStockCounter  + stock;
+                    incrementStockCounter=totalStock;
+                    mItemStockText.setText((String.valueOf(totalStock)));
+
+                    ContentValues values = new ContentValues();
+                    values.put(InventoryContract.InventoryEntry.COLUMN_ITEMS_IN_STOCK, newQuantity);
+
+                    Uri recordUri = ContentUris.withAppendedId(InventoryContract.InventoryEntry.CONTENT_URI, itemId);
+                    int numRowsUpdated = getContentResolver().update(recordUri, values, null, null);
+
+                    if (!(numRowsUpdated > 0)) {
+                        Log.e(LOG_TAG, EditorActivity.this.getString(R.string.editor_insert_stock_update_failed));
+                    }
 
                 }
             });
@@ -529,19 +524,21 @@ public class EditorActivity extends AppCompatActivity implements
             decrementStockImage.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    if (stock >= 1) {
-                          newQuantity = stock--;
+
+                        incrementStockCounter-- ;
+
+                        int totalStock = incrementStockCounter   +  stock;
+                    incrementStockCounter=totalStock;
+                        mItemStockText.setText((String.valueOf(totalStock)));
                         ContentValues values = new ContentValues();
                         values.put(InventoryContract.InventoryEntry.COLUMN_ITEMS_IN_STOCK, newQuantity);
                         Uri recordUri = ContentUris.withAppendedId(InventoryContract.InventoryEntry.CONTENT_URI, itemId);
-                        int numRowsUpdated = getContentResolver().update(recordUri, values, null, null);
-                        if (!(numRowsUpdated > 0)) {
-                            Log.e(LOG_TAG, EditorActivity.this.getString(R.string.editor_insert_stock_update_failed));
-                        }
-                    } else if (!(stock >= 1)) {
+                         getContentResolver().update(recordUri, values, null, null);
+
+                     if (!(stock >= 1)) {
                         Toast.makeText(EditorActivity.this, getString(R.string.no_stock), Toast.LENGTH_SHORT).show();
                     }
-                    mItemStockText.setText(Integer.toString(newQuantity));
+
                 }
             });
 
