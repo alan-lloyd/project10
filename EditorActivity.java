@@ -35,6 +35,8 @@ import java.io.InputStream;
 
 import androidbasicsnd.lloyd.alan.com.udacity.inventory.data.InventoryContract;
 
+import static androidbasicsnd.lloyd.alan.com.udacity.inventory.R.id.name;
+import static androidbasicsnd.lloyd.alan.com.udacity.inventory.R.string.stock;
 import static androidbasicsnd.lloyd.alan.com.udacity.inventory.data.InventoryProvider.LOG_TAG;
 
 //DEALS WITH THE EDIT RECORD
@@ -77,6 +79,9 @@ public class EditorActivity extends AppCompatActivity implements
     private boolean mInventoryHasChanged = false;
     private Button mDecrementButton;
     private EditText mItemInfoEditText;
+    private ImageView eMailStockImage;
+    private String wholesalerEmail = "harry7lloyd@gmail.com";
+
     /**
      * OnTouchListener that listens for any user touches on a View, implying that they are modifying
      * the view, and we change the mInventoryHasChanged boolean to true.
@@ -126,7 +131,8 @@ public class EditorActivity extends AppCompatActivity implements
         mImageView2 = (ImageView) findViewById(R.id.item_image2);
         incrementStockImage = (ImageButton) findViewById(R.id.item_stock_add_image);
         decrementStockImage = (ImageButton) findViewById(R.id.item_stock_delete_image);
-        mItemStockText = (TextView) findViewById(R.id.stock);
+        mItemStockText = (TextView) findViewById(R.id.inner_stock);
+        eMailStockImage = (ImageView) findViewById(R.id.item_stocks_zero_contact_wholesaler);
 
 
         mImageView.setOnClickListener(new View.OnClickListener() {
@@ -144,7 +150,7 @@ public class EditorActivity extends AppCompatActivity implements
         mPriceEditText.setOnTouchListener(mTouchListener);
         incrementStockImage.setOnTouchListener(mTouchListener);
         decrementStockImage.setOnTouchListener(mTouchListener);
-
+        eMailStockImage.setOnTouchListener(mTouchListener);
 
         //records stock increment clicks when creating an item record
         incrementStockImage.setOnClickListener(new View.OnClickListener() {
@@ -170,6 +176,42 @@ public class EditorActivity extends AppCompatActivity implements
                 }
             }
         });
+
+
+
+        //send email to wholesaler for item stocks for specific item
+        eMailStockImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //Invoke an implicit intent to send an email to wholesale re item stock supply
+                Intent emailMoreStockIntent = new Intent(Intent.ACTION_SENDTO);
+                String to = wholesalerEmail;
+                String itemName = mNameEditText.getText().toString();
+                String stocks = mItemStockText.getText().toString();
+                String subject ="framework agreement 123 Bloggs Inc. and Wholesalers ltd - replenish call-off item " + name ;
+                String newRow = System.getProperty("line.separator");
+                String message = "Dear Wholesalers Ltd, " + newRow + " please quote availability  of " + itemName + newRow + "Our anticipated warehouse stocks: " + stocks  + newRow + "Our framework agreement 123 refers.";
+                emailMoreStockIntent.setData(Uri.parse("mailto:" + to));
+                emailMoreStockIntent.putExtra(Intent.EXTRA_SUBJECT, subject);
+                emailMoreStockIntent.putExtra(Intent.EXTRA_TEXT, message);
+
+                try {
+                    startActivity(emailMoreStockIntent);
+                    finish();
+                    Log.i(LOG_TAG, "email sent");
+                } catch (android.content.ActivityNotFoundException ex) {
+                    Toast.makeText(EditorActivity.this, "install an email client", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+        });
+
+
+
+
+
+
+
 
     }// end of onCreate method
 
@@ -492,7 +534,7 @@ public class EditorActivity extends AppCompatActivity implements
             mPriceEditText.setText(price);
             //img data from db called up as a string. Converted to a URI format, then img file loaded up via that URI
             mImageView2.setImageBitmap(getBitmapFromUri(Uri.parse(itemImage)));
-
+            mItemStockText.setText(Integer.toString(stock));
 
 
             incrementStockImage.setOnClickListener(new View.OnClickListener() {
@@ -506,13 +548,13 @@ public class EditorActivity extends AppCompatActivity implements
                         // Create a new stock value, in the stock column (key) - so, finds COLUMN & new data to write in
                         values.put(InventoryContract.InventoryEntry.COLUMN_ITEMS_IN_STOCK, incrementStockCounter);
                         //finds relevant item record (e.g. the right table row)
-                        //recordUri is  content://androidbasicsnd.lloyd.alan.com.udacity.inventory/inventory/22  "22" is item record, not column, so finds ROW
+                        //recordUri is e.g. content://androidbasicsnd.lloyd.alan.com.udacity.inventory/inventory/22  "22" is item record, not column, so finds ROW
                         Uri recordUri = ContentUris.withAppendedId(InventoryContract.InventoryEntry.CONTENT_URI, itemId);
                         //update row at recordUri which has specific _ID value itemId
                         getContentResolver().update(recordUri, values, null, null);
                     }
                 }
-            });
+            });  //listener end
 
             decrementStockImage.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -533,8 +575,14 @@ public class EditorActivity extends AppCompatActivity implements
                         Toast.makeText(EditorActivity.this, getString(R.string.no_stock), Toast.LENGTH_SHORT).show();
                     }
                 }
-            });
+            });  //listener end
+
         }//end of if (cursor moves to first)
+
+
+
+
+
     }//end of onLoadFinished method
 
     // Log.v(LOG_TAG, "WHAT IS VALUE OF INCREMENTSTOCKCOUNTER JUST BEFORE SETTEXT WITH IT??  " + finalScore );

@@ -85,31 +85,6 @@
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/container_stock"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="6dp">
-
-        <!-- Label -->
-        <TextView
-            style="@style/CategoryStyle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/stock_item" />
-
-
-        <TextView
-            android:id="@+id/stock"
-            style="@style/EditorFieldStyle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/zero_number"
-            android:textAlignment="center" />
-    </LinearLayout>
-
-
-    <LinearLayout
         android:id="@+id/item_image_choice"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -136,7 +111,8 @@
         android:id="@+id/item_stock_edits"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:padding="6dp">
 
         <!-- Label -->
         <TextView
@@ -162,23 +138,38 @@
 
 
     <LinearLayout
-        android:id="@+id/item_stock_edits2"
-        android:layout_width="fill_parent"
+        android:id="@+id/container_stock"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
         android:orientation="horizontal"
-        android:weightSum="2">
+        android:padding="6dp">
 
-
-        <ImageView
-            android:id="@+id/item_stocks_zero_contact_wholesaler"
+        <!-- Label -->
+        <TextView
+            style="@style/CategoryStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:contentDescription="@string/decrement_stock_button"
+            android:text="@string/stock_item" />
 
-            android:src="@drawable/ic_contact_mail_black_36dp" />
 
+        <TextView
+            android:id="@+id/inner_stock"
+            style="@style/EditorFieldStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/zero_number"
+            android:textAlignment="center" />
     </LinearLayout>
+
+
+    <ImageView
+        android:id="@+id/item_stocks_zero_contact_wholesaler"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:layout_weight="1"
+        android:contentDescription="@string/decrement_stock_button"
+        android:src="@drawable/ic_contact_mail_black_36dp" />
+
 
 </LinearLayout>
