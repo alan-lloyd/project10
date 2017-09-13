@@ -52,17 +52,18 @@ public class EditorActivity extends AppCompatActivity implements
     public ImageView mImageView;
     public ImageView mImageView2;
     public Uri mUri; //URI to hold image URIs
-    public int incrementStockCounter;  //stock level counters, used in onClick() of stock increment/decrement buttons
+    public int incrementStockCounter = 0;  //stock level counters, used in onClick() of stock increment/decrement buttons
     // long itemId;
     public ImageButton incrementStockImage; //used to record stock level updates, via stock level counters, in onClick()s
     public ImageButton decrementStockImage; //used to record stock level updates, via stock level counters, in onClick()s
     public int stockLevel;
-
+    int incrementStockCounterb;
     String imageString; //string version of mUri, with URI for item image file
     //TextView stockTextView2;
-    int newQuantity;
+    int totalStock;
     long itemId;
-    int stock;
+    int incrementStockCounterA = 0;
+    // int stock;
     // Content URI for the existing inventory (null if it's a new inventory)
     private Uri mCurrentInventoryUri;
     // EditText field to enter inventory item's name
@@ -76,10 +77,6 @@ public class EditorActivity extends AppCompatActivity implements
     private boolean mInventoryHasChanged = false;
     private Button mDecrementButton;
     private EditText mItemInfoEditText;
-    //  private TextView decrementStockImage2;
-    // private TextView mTextView;
-
-
     /**
      * OnTouchListener that listens for any user touches on a View, implying that they are modifying
      * the view, and we change the mInventoryHasChanged boolean to true.
@@ -486,7 +483,8 @@ public class EditorActivity extends AppCompatActivity implements
             String itemInfo = cursor.getString(itemInfoColumnIndex);
             String price = cursor.getString(priceColumnIndex);
             String itemImage = cursor.getString(imageColumnIndex);
-            stock = cursor.getInt(stockColumnIndex);
+            int stock = cursor.getInt(stockColumnIndex);
+
 
             // Update the views on the screen with the values from the database
             mNameEditText.setText(name);
@@ -495,58 +493,51 @@ public class EditorActivity extends AppCompatActivity implements
             //img data from db called up as a string. Converted to a URI format, then img file loaded up via that URI
             mImageView2.setImageBitmap(getBitmapFromUri(Uri.parse(itemImage)));
 
-            mItemStockText.setText((String.valueOf(stock)));
 
 
             incrementStockImage.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    mItemStockText.setText((String.valueOf(stock)));
-                    incrementStockCounter++ ;
-                    int totalStock= incrementStockCounter  + stock;
-                    incrementStockCounter=totalStock;
-                    mItemStockText.setText((String.valueOf(totalStock)));
+                    incrementStockCounter++;
+                    if (incrementStockCounter >= 0) {
+                        mItemStockText.setText(Integer.toString(incrementStockCounter));
 
-                    ContentValues values = new ContentValues();
-                    values.put(InventoryContract.InventoryEntry.COLUMN_ITEMS_IN_STOCK, newQuantity);
-
-                    Uri recordUri = ContentUris.withAppendedId(InventoryContract.InventoryEntry.CONTENT_URI, itemId);
-                    int numRowsUpdated = getContentResolver().update(recordUri, values, null, null);
-
-                    if (!(numRowsUpdated > 0)) {
-                        Log.e(LOG_TAG, EditorActivity.this.getString(R.string.editor_insert_stock_update_failed));
+                        ContentValues values = new ContentValues();
+                        // Create a new stock value, in the stock column (key) - so, finds COLUMN & new data to write in
+                        values.put(InventoryContract.InventoryEntry.COLUMN_ITEMS_IN_STOCK, incrementStockCounter);
+                        //finds relevant item record (e.g. the right table row)
+                        //recordUri is  content://androidbasicsnd.lloyd.alan.com.udacity.inventory/inventory/22  "22" is item record, not column, so finds ROW
+                        Uri recordUri = ContentUris.withAppendedId(InventoryContract.InventoryEntry.CONTENT_URI, itemId);
+                        //update row at recordUri which has specific _ID value itemId
+                        getContentResolver().update(recordUri, values, null, null);
                     }
-
                 }
             });
-
 
             decrementStockImage.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-
-                        incrementStockCounter-- ;
-
-                        int totalStock = incrementStockCounter   +  stock;
-                    incrementStockCounter=totalStock;
-                        mItemStockText.setText((String.valueOf(totalStock)));
+                    incrementStockCounter--;
+                    if (incrementStockCounter >= 0) {
+                        mItemStockText.setText(Integer.toString(incrementStockCounter));
                         ContentValues values = new ContentValues();
-                        values.put(InventoryContract.InventoryEntry.COLUMN_ITEMS_IN_STOCK, newQuantity);
+                        // Create a new stock value, in the stock column (key) - so, finds COLUMN & new data to write in
+                        values.put(InventoryContract.InventoryEntry.COLUMN_ITEMS_IN_STOCK, incrementStockCounter);
+                        //finds relevant item record (e.g. the right table row)
+                        //recordUri is  content://androidbasicsnd.lloyd.alan.com.udacity.inventory/inventory/22  "22" is item record, not column, so finds ROW
                         Uri recordUri = ContentUris.withAppendedId(InventoryContract.InventoryEntry.CONTENT_URI, itemId);
-                         getContentResolver().update(recordUri, values, null, null);
-
-                     if (!(stock >= 1)) {
+                        //update row at recordUri with value itemId
+                        getContentResolver().update(recordUri, values, null, null);
+                    } else {
+                        // If update desired is 0, then ask for new stocks
                         Toast.makeText(EditorActivity.this, getString(R.string.no_stock), Toast.LENGTH_SHORT).show();
                     }
-
                 }
             });
-
-
         }//end of if (cursor moves to first)
-
     }//end of onLoadFinished method
 
+    // Log.v(LOG_TAG, "WHAT IS VALUE OF INCREMENTSTOCKCOUNTER JUST BEFORE SETTEXT WITH IT??  " + finalScore );
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
